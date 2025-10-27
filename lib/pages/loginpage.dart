@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:porject2/pages/registerpage.dart';
-import 'package:porject2/pages/home_page.dart';
+import 'package:Libtrack/pages/registerpage.dart';
+import 'package:Libtrack/pages/home_page.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -15,6 +15,7 @@ class _LoginState extends State<Login> {
   final passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool obsecureText = true;
 
   @override
   void dispose() {
@@ -96,7 +97,11 @@ class _LoginState extends State<Login> {
                 const SizedBox(height: 5),
                 Text(
                   "Login to your account to get started.",
-                  style: TextStyle(color: Colors.grey[350], fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 140),
                 TextField(
@@ -115,11 +120,22 @@ class _LoginState extends State<Login> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: obsecureText,
                   decoration: InputDecoration(
                     hintText: "Enter your password",
                     prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: const Icon(Icons.visibility_off),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          obsecureText = !obsecureText;
+                        });
+                      },
+                      icon: Icon(
+                        obsecureText
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                    ),
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(

@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:porject2/pages/landing_page.dart';
-import 'package:porject2/pages/record_page.dart';
-import 'package:porject2/pages/scan_page.dart';
+import 'package:Libtrack/pages/landing_page.dart';
+import 'package:Libtrack/pages/record_page.dart';
+import 'package:Libtrack/pages/scan_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,7 +25,6 @@ class _HomePageState extends State<HomePage> {
     _loadLibraryStatus();
   }
 
-  /// Load user's name from Firestore
   Future<void> _loadUserData() async {
     if (user != null) {
       try {
@@ -44,7 +43,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Load library status (IN/OUT) from Firestore
   Future<void> _loadLibraryStatus() async {
     if (user != null) {
       try {
@@ -63,7 +61,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Logout and navigate to Starting page
   Future<void> _logout() async {
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
@@ -75,7 +72,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Handle double back press to exit
   Future<bool> _onWillPop() async {
     final now = DateTime.now();
     if (lastPressed == null ||
@@ -97,57 +93,81 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.grey[900], // Dark background
         appBar: AppBar(
-          title: const Text("Library In–Out System"),
+          iconTheme: IconThemeData(color: Colors.white),
+          title: const Text(
+            "Library In–Out System",
+            style: TextStyle(color: Colors.white),
+          ),
           centerTitle: true,
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.blueGrey[700], // subtle dark color
+          elevation: 0,
         ),
         drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              UserAccountsDrawerHeader(
-                decoration: const BoxDecoration(color: Colors.deepPurple),
-                accountName: Text(
-                  userName,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+          child: Container(
+            color: Colors.grey[850], // dark drawer
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey[800], // subtle elegant color
+                  ),
+                  accountName: Text(
+                    userName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  accountEmail: Text(
+                    user?.email ?? "No email available",
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  currentAccountPicture: const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
+                  ),
                 ),
-                accountEmail: Text(
-                  user?.email ?? "No email available",
-                  style: const TextStyle(color: Colors.white70),
+                ListTile(
+                  leading: const Icon(Icons.history, color: Colors.white70),
+                  title: const Text(
+                    "My In–Out History",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RecordsPage()),
+                    );
+                  },
                 ),
-                currentAccountPicture: const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 40, color: Colors.deepPurple),
+                const Divider(color: Colors.white24),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.white70),
+                  title: const Text(
+                    "Logout",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: _logout,
                 ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text("My In–Out History"),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RecordsPage()),
-                  );
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("Logout"),
-                onTap: _logout,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                isInLibrary ? Icons.check_circle : Icons.cancel,
-                color: isInLibrary ? Colors.green : Colors.red,
-                size: 90,
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isInLibrary ? Colors.green[400] : Colors.red[400],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Icon(
+                  isInLibrary ? Icons.check_circle : Icons.cancel,
+                  color: Colors.white,
+                  size: 55,
+                ),
               ),
               const SizedBox(height: 20),
               Text(
@@ -155,26 +175,24 @@ class _HomePageState extends State<HomePage> {
                     ? "You are currently IN the Library"
                     : "No active session",
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: isInLibrary ? Colors.green : Colors.red,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isInLibrary ? Colors.green[300] : Colors.red[300],
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
                 isInLibrary
                     ? "Scan QR to mark OUT when you leave."
                     : "Scan QR to mark IN when you enter.",
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                style: const TextStyle(fontSize: 16, color: Colors.white70),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.deepPurple,
-          icon: const Icon(Icons.qr_code_2, size: 28, color: Colors.white),
-          label: const Text("Scan QR", style: TextStyle(color: Colors.white)),
           onPressed: () async {
             final result = await Navigator.push(
               context,
@@ -187,6 +205,9 @@ class _HomePageState extends State<HomePage> {
               setState(() => isInLibrary = false);
             }
           },
+          backgroundColor: Colors.blueGrey[700], // elegant color
+          icon: const Icon(Icons.qr_code_2, color: Colors.white),
+          label: const Text("Scan QR", style: TextStyle(color: Colors.white)),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),

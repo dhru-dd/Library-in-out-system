@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:porject2/pages/loginpage.dart';
+import 'package:Libtrack/pages/loginpage.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -17,6 +17,7 @@ class _RegisterState extends State<Register> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool obsecureText = true;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -114,8 +115,13 @@ class _RegisterState extends State<Register> {
       body: Stack(
         children: [
           // Background Image
-          Positioned.fill(
-            child: Image.asset("images/i2.jpg", fit: BoxFit.cover),
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("images/i2.jpg"),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
@@ -133,7 +139,11 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 5),
                 Text(
                   "Sign up with your student email and roll number to access the library.",
-                  style: TextStyle(color: Colors.grey[350], fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 80),
                 TextField(
@@ -180,11 +190,22 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: obsecureText,
                   decoration: InputDecoration(
                     hintText: "Password",
                     prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: const Icon(Icons.visibility_off),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          obsecureText = !obsecureText;
+                        });
+                      },
+                      icon: Icon(
+                        obsecureText
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                    ),
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(
@@ -239,7 +260,7 @@ class _RegisterState extends State<Register> {
                         style: TextStyle(
                           color: Colors.lightBlueAccent,
                           fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ),

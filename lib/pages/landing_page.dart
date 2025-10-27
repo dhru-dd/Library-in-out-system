@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:porject2/pages/loginpage.dart';
-import 'package:porject2/pages/home_page.dart';
+import 'package:Libtrack/pages/loginpage.dart';
+import 'package:Libtrack/pages/home_page.dart';
 
 class StartingPage extends StatelessWidget {
   const StartingPage({super.key});
@@ -42,11 +42,12 @@ class StartingPage extends StatelessWidget {
                 children: [
                   // Main heading
                   Text(
-                    'Your Health,\nYour Way!',
+                    'One Scan,\nIn or Out!',
                     style: GoogleFonts.raleway(
                       textStyle: const TextStyle(
                         fontSize: 32,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.normal,
                         color: Colors.white,
                       ),
                     ),
@@ -56,7 +57,7 @@ class StartingPage extends StatelessWidget {
 
                   // Subtitle
                   Text(
-                    'Track every meal, every bite and see the bigger picture of your health.',
+                    'Scan every entry, record every exit, and keep track of your library visits effortlessly.',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 14,

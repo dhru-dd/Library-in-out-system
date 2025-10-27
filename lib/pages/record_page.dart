@@ -6,12 +6,10 @@ import 'package:intl/intl.dart';
 class RecordsPage extends StatelessWidget {
   const RecordsPage({super.key});
 
-  // ✅ Fetch records directly from "records" collection
   Future<List<Map<String, dynamic>>> fetchRecords() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return [];
 
-    // Query from the main 'records' collection
     final query = await FirebaseFirestore.instance
         .collection('records')
         .where('userId', isEqualTo: user.uid)
@@ -24,20 +22,33 @@ class RecordsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900], // dark background
       appBar: AppBar(
-        title: const Text("My In–Out History"),
-        backgroundColor: Colors.deepPurple,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: const Text(
+          "My In–Out History",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.grey[850], // subtle dark
         centerTitle: true,
+        elevation: 0,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchRecords(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
 
           if (snapshot.hasError) {
-            return const Center(child: Text("Error loading records"));
+            return const Center(
+              child: Text(
+                "Error loading records",
+                style: TextStyle(color: Colors.white70),
+              ),
+            );
           }
 
           final records = snapshot.data ?? [];
@@ -46,7 +57,7 @@ class RecordsPage extends StatelessWidget {
             return const Center(
               child: Text(
                 "No records found.",
-                style: TextStyle(fontSize: 16, color: Colors.black54),
+                style: TextStyle(fontSize: 16, color: Colors.white70),
               ),
             );
           }
@@ -68,14 +79,15 @@ class RecordsPage extends StatelessWidget {
               final isIn = action.contains('Entered');
 
               return Card(
-                elevation: 4,
+                color: Colors.grey[850], // dark card
+                elevation: 3,
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: isIn ? Colors.green : Colors.red,
+                    backgroundColor: isIn ? Colors.green[400] : Colors.red[400],
                     child: Icon(
                       isIn ? Icons.login : Icons.logout,
                       color: Colors.white,
@@ -85,7 +97,7 @@ class RecordsPage extends StatelessWidget {
                     "$action — $formattedTime",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isIn ? Colors.green[700] : Colors.red[700],
+                      color: isIn ? Colors.green[300] : Colors.red[300],
                       fontSize: 15,
                     ),
                   ),
@@ -93,8 +105,14 @@ class RecordsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 5),
-                      Text("Name: $name"),
-                      Text("Roll No: $rollno"),
+                      Text(
+                        "Name: $name",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "Roll No: $rollno",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ],
                   ),
                 ),

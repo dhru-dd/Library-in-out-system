@@ -15,42 +15,71 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> handleScan(String code) async {
     if (isProcessing) return; // prevent multiple scans
-    isProcessing = true;
+    setState(() => isProcessing = true);
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Colors.blueGrey),
+      ),
+    );
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please log in first.")));
+      Navigator.of(context).pop(); // remove loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please log in first."),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(seconds: 2),
+        ),
+      );
       Navigator.pop(context);
+      setState(() => isProcessing = false);
       return;
     }
 
     // Only accept "IN" or "OUT" codes
     if (code != 'IN' && code != 'OUT') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Invalid QR code.")));
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Invalid QR code."),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(seconds: 2),
+        ),
+      );
       Navigator.pop(context);
+      setState(() => isProcessing = false);
       return;
     }
 
     try {
       final firestore = FirebaseFirestore.instance;
 
-      // 🔹 Fetch user's name & roll no safely
+      // Fetch user data
       final userDoc = await firestore.collection('users').doc(user.uid).get();
       if (!userDoc.exists) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("User data not found.")));
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("User data not found."),
+            backgroundColor: Colors.redAccent,
+            duration: Duration(seconds: 2),
+          ),
+        );
         Navigator.pop(context);
+        setState(() => isProcessing = false);
         return;
       }
+
       final userData = userDoc.data()!;
       final userName = userData['name'] ?? 'Unknown';
       final userRoll = userData['rollno'] ?? 'Unknown';
 
+      // Check current library status
       final statusDoc = await firestore
           .collection('libraryStatus')
           .doc(user.uid)
@@ -61,6 +90,7 @@ class _ScanPageState extends State<ScanPage> {
 
       if ((currentlyInLibrary && code == 'IN') ||
           (!currentlyInLibrary && code == 'OUT')) {
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -68,20 +98,23 @@ class _ScanPageState extends State<ScanPage> {
                   ? "You are already in the library"
                   : "You have already left the library",
             ),
+            backgroundColor: Colors.blueGrey[700],
             duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
           ),
         );
         Navigator.pop(context);
+        setState(() => isProcessing = false);
         return;
       }
 
-      // 🔹 Update library status
+      // Update library status
       await firestore.collection('libraryStatus').doc(user.uid).set({
         'inLibrary': code == 'IN',
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 🔹 Add a record in "records" collection
+      // Add record in "records" collection
       await firestore.collection('records').add({
         'userId': user.uid,
         'email': user.email,
@@ -89,10 +122,11 @@ class _ScanPageState extends State<ScanPage> {
         'rollno': userRoll,
         'action': code == 'IN' ? 'Entered Library' : 'Left Library',
         'timestamp': FieldValue.serverTimestamp(),
-        'status': code, // optional for easier display in history
+        'status': code,
       });
 
-      // 🔹 Feedback message
+      // Show success message
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -100,40 +134,68 @@ class _ScanPageState extends State<ScanPage> {
                 ? "Marked as IN successfully!"
                 : "Marked as OUT successfully!",
           ),
+          backgroundColor: Colors.blueGrey[700],
           duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
         ),
       );
 
       // Return result to HomePage
       Navigator.pop(context, code.toLowerCase());
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: Colors.redAccent,
+          duration: const Duration(seconds: 2),
+        ),
+      );
       Navigator.pop(context);
     } finally {
-      isProcessing = false;
+      setState(() => isProcessing = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text("Scan QR Code"),
-        backgroundColor: Colors.deepPurple,
+        title: const Text(
+          "Scan QR Code",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueGrey[700],
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: MobileScanner(
-        onDetect: (capture) {
-          final List<Barcode> barcodes = capture.barcodes;
-          for (final barcode in barcodes) {
-            final String? code = barcode.rawValue;
-            if (code != null) {
-              handleScan(code.trim().toUpperCase());
-              break;
-            }
-          }
-        },
+      body: Stack(
+        children: [
+          MobileScanner(
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                final String? code = barcode.rawValue;
+                if (code != null) {
+                  handleScan(code.trim().toUpperCase());
+                  break;
+                }
+              }
+            },
+          ),
+          // Scanner overlay
+          Center(
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueGrey[300]!, width: 3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

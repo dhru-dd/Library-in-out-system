@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:porject2/pages/auth_page.dart';
+import 'package:Libtrack/pages/auth_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       title: 'Project 2',
       theme: ThemeData(
         textTheme: GoogleFonts.ralewayTextTheme(Theme.of(context).textTheme),
-        primarySwatch: Colors.blue,
+        // primarySwatch: Colors.blue,
       ),
       home: const AuthPage(),
     );
