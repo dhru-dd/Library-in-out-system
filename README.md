@@ -28,8 +28,13 @@ The Library In–Out System is a Flutter mobile app designed to digitize the pro
 
 - **Additional Improvements:**  
   - Notifications for students when they enter/leave the library.  
-  - Analytics for librarians to optimize library usage.  
+  - Analytics for librarians to optimize library usage.
 
+You can access the APK file, demo video, and additional project resources from the given link below:
+
+Android App APK File Upload on Google Drive : https://drive.google.com/drive/folders/1Nkv5Uf1cm6b-G_JgOK0bQMTn6Y9FTqtX?usp=drive_link
+QR Codes For Entry IN or Entry OUT in Library : https://drive.google.com/drive/folders/1pPfQkWLhzau2SDklyHS9r3zJZkY1D47g?usp=drive_link
+Demo Video of Android App : https://drive.google.com/file/d/1YVu08mwbScO8gKAu75KutETLmLXxeLjA/view?usp=drive_link
 
 
 ## Getting Started
